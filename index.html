@@ -2,417 +2,54 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Messages App</title>
-
 <style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f2f4f7;
-    color: #222;
-}
-
-header {
-    background: #4f7cff;
-    color: white;
-    padding: 18px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.container {
-    max-width: 700px;
-    margin: 30px auto;
-    padding: 20px;
-}
-
-.card {
-    background: white;
-    border-radius: 16px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-}
-
-h2 {
-    text-align: center;
-    margin-top: 0;
-}
-
-input {
-    width: 100%;
-    padding: 14px;
-    margin: 8px 0;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    font-size: 16px;
-}
-
-button {
-    width: 100%;
-    padding: 14px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 10px;
-    background: #4f7cff;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-button:hover {
-    opacity: 0.9;
-}
-
-#chatScreen {
-    display: none;
-}
-
-.roomInfo {
-    background: #eef2ff;
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.messages {
-    height: 400px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 15px;
-    background: #fafafa;
-}
-
-.message {
-    margin: 10px 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.message.mine {
-    align-items: flex-end;
-}
-
-.message.other {
-    align-items: flex-start;
-}
-
-.name {
-    font-size: 12px;
-    color: #777;
-    margin-bottom: 4px;
-}
-
-.bubble {
-    max-width: 75%;
-    padding: 10px 14px;
-    border-radius: 16px;
-    background: #e5e7eb;
-    word-break: break-word;
-}
-
-.mine .bubble {
-    background: #4f7cff;
-    color: white;
-}
-
-.sendArea {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-}
-
-.sendArea input {
-    margin: 0;
-    flex: 1;
-}
-
-.sendArea button {
-    width: 90px;
-    margin: 0;
-}
-
-.leave {
-    background: #777;
-    margin-top: 12px;
-}
-
-.empty {
-    text-align: center;
-    color: #999;
-    margin-top: 150px;
-}
-
-.error {
-    color: #e53935;
-    text-align: center;
-    margin-top: 10px;
-    font-size: 14px;
-}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f2f4f7;color:#222}header{background:#4f7cff;color:#fff;padding:18px;text-align:center;font-size:24px;font-weight:bold}.container{max-width:700px;margin:30px auto;padding:20px}.card{background:#fff;border-radius:16px;padding:25px;box-shadow:0 5px 20px #00000014}h2{text-align:center;margin-top:0}input{width:100%;padding:14px;margin:8px 0;border:1px solid #ddd;border-radius:10px;font-size:16px}button{width:100%;padding:14px;margin-top:10px;border:0;border-radius:10px;background:#4f7cff;color:#fff;font-size:16px;font-weight:bold;cursor:pointer}#chatScreen{display:none}.roomInfo{background:#eef2ff;padding:12px;border-radius:10px;margin-bottom:15px;text-align:center;font-weight:bold}.status{text-align:center;font-size:13px;margin:8px;color:#555}.messages{height:400px;overflow-y:auto;border:1px solid #ddd;border-radius:12px;padding:15px;background:#fafafa}.message{margin:10px 0;display:flex;flex-direction:column}.message.mine{align-items:flex-end}.message.other{align-items:flex-start}.name{font-size:12px;color:#777;margin-bottom:4px}.bubble{max-width:75%;padding:10px 14px;border-radius:16px;background:#e5e7eb;word-break:break-word}.mine .bubble{background:#4f7cff;color:#fff}.sendArea{display:flex;gap:8px;margin-top:12px}.sendArea input{margin:0;flex:1}.sendArea button{width:90px;margin:0}.leave{background:#777;margin-top:12px}.empty{text-align:center;color:#999;margin-top:150px}.error{color:#e53935;text-align:center;margin-top:10px;font-size:14px}
 </style>
 </head>
-
 <body>
-
-<header>
-    💬 Messages App
-</header>
-
+<header>💬 Messages App</header>
 <div class="container">
-
-    <!-- 입장 화면 -->
-    <div class="card" id="loginScreen">
-        <h2>채팅방 입장</h2>
-
-        <input
-            type="text"
-            id="nickname"
-            placeholder="닉네임 입력"
-            maxlength="15"
-        >
-
-        <input
-            type="text"
-            id="roomNumber"
-            placeholder="5자리 방 번호"
-            maxlength="5"
-            inputmode="numeric"
-        >
-
-        <button onclick="joinRoom()">채팅방 들어가기</button>
-
-        <div class="error" id="error"></div>
-    </div>
-
-    <!-- 채팅 화면 -->
-    <div class="card" id="chatScreen">
-
-        <h2>💬 채팅</h2>
-
-        <div class="roomInfo">
-            방 번호: <span id="roomDisplay"></span>
-            <br>
-            👤 <span id="nicknameDisplay"></span>
-        </div>
-
-        <div class="messages" id="messages">
-            <div class="empty" id="emptyMessage">
-                아직 메시지가 없습니다.
-            </div>
-        </div>
-
-        <div class="sendArea">
-            <input
-                type="text"
-                id="messageInput"
-                placeholder="메시지를 입력하세요"
-                maxlength="300"
-                onkeydown="handleEnter(event)"
-            >
-
-            <button onclick="sendMessage()">전송</button>
-        </div>
-
-        <button class="leave" onclick="leaveRoom()">
-            채팅방 나가기
-        </button>
-
-    </div>
-
+<div class="card" id="loginScreen">
+<h2>채팅방 입장</h2>
+<input id="nickname" placeholder="닉네임 입력" maxlength="15">
+<input id="roomNumber" placeholder="5자리 방 번호" maxlength="5" inputmode="numeric">
+<button onclick="joinRoom()">채팅방 들어가기</button>
+<div class="error" id="error"></div>
 </div>
-
+<div class="card" id="chatScreen">
+<h2>💬 채팅</h2>
+<div class="roomInfo">방 번호: <span id="roomDisplay"></span><br>👤 <span id="nicknameDisplay"></span></div>
+<div class="status" id="status">연결 중...</div>
+<div class="messages" id="messages"><div class="empty">아직 메시지가 없습니다.</div></div>
+<div class="sendArea"><input id="messageInput" placeholder="메시지를 입력하세요" maxlength="300" onkeydown="handleEnter(event)"><button onclick="sendMessage()">전송</button></div>
+<button class="leave" onclick="leaveRoom()">채팅방 나가기</button>
+</div></div>
 <script>
-
-let nickname = "";
-let roomNumber = "";
-
-// 채팅방 입장
-function joinRoom() {
-
-    const nameInput = document.getElementById("nickname").value.trim();
-    const roomInput = document.getElementById("roomNumber").value.trim();
-    const error = document.getElementById("error");
-
-    error.textContent = "";
-
-    if (nameInput === "") {
-        error.textContent = "닉네임을 입력해주세요.";
-        return;
-    }
-
-    if (!/^\d{5}$/.test(roomInput)) {
-        error.textContent = "방 번호는 5자리 숫자로 입력해주세요.";
-        return;
-    }
-
-    nickname = nameInput;
-    roomNumber = roomInput;
-
-    document.getElementById("nicknameDisplay").textContent = nickname;
-    document.getElementById("roomDisplay").textContent = roomNumber;
-
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("chatScreen").style.display = "block";
-
-    loadMessages();
-
-    document.getElementById("messageInput").focus();
+const SERVER="wss://messages-server.pso20060101.workers.dev/ws";
+let nickname="",roomNumber="",socket=null,senderId=crypto.randomUUID();
+function joinRoom(){
+ const n=document.getElementById('nickname').value.trim(),r=document.getElementById('roomNumber').value.trim(),e=document.getElementById('error');e.textContent='';
+ if(!n){e.textContent='닉네임을 입력해주세요.';return}if(!/^\d{5}$/.test(r)){e.textContent='방 번호는 5자리 숫자로 입력해주세요.';return}
+ nickname=n;roomNumber=r;document.getElementById('nicknameDisplay').textContent=n;document.getElementById('roomDisplay').textContent=r;document.getElementById('loginScreen').style.display='none';document.getElementById('chatScreen').style.display='block';
+ document.getElementById('messages').innerHTML='<div class="empty">연결 중...</div>';connect();document.getElementById('messageInput').focus();
 }
-
-
-// 메시지 보내기
-function sendMessage() {
-
-    const input = document.getElementById("messageInput");
-    const text = input.value.trim();
-
-    if (text === "") {
-        return;
-    }
-
-    const messages = getMessages();
-
-    messages.push({
-        nickname: nickname,
-        text: text,
-        time: new Date().toLocaleTimeString("ko-KR", {
-            hour: "2-digit",
-            minute: "2-digit"
-        })
-    });
-
-    saveMessages(messages);
-
-    input.value = "";
-
-    loadMessages();
+function connect(){
+ const url=SERVER+'?room='+encodeURIComponent(roomNumber)+'&name='+encodeURIComponent(nickname)+'&id='+encodeURIComponent(senderId);socket=new WebSocket(url);
+ socket.onopen=()=>{document.getElementById('status').textContent='🟢 연결됨'};
+ socket.onmessage=e=>{let d;try{d=JSON.parse(e.data)}catch{return}if(d.type==='history'){document.getElementById('messages').innerHTML='';if(!d.messages.length)showEmpty();d.messages.forEach(addMessage);scrollBottom()}else if(d.type==='message'){addMessage(d);scrollBottom()}else if(d.type==='system'){showSystem(d.text)}};
+ socket.onclose=()=>{document.getElementById('status').textContent='🔴 연결 끊김'};
+ socket.onerror=()=>{document.getElementById('status').textContent='🔴 서버 연결 오류'};
 }
-
-
-// 메시지 불러오기
-function loadMessages() {
-
-    const messagesBox = document.getElementById("messages");
-    const empty = document.getElementById("emptyMessage");
-
-    messagesBox.innerHTML = "";
-
-    const messages = getMessages();
-
-    if (messages.length === 0) {
-
-        const emptyDiv = document.createElement("div");
-        emptyDiv.className = "empty";
-        emptyDiv.textContent = "아직 메시지가 없습니다.";
-
-        messagesBox.appendChild(emptyDiv);
-
-        return;
-    }
-
-    messages.forEach(message => {
-
-        const messageDiv = document.createElement("div");
-
-        if (message.nickname === nickname) {
-            messageDiv.className = "message mine";
-        } else {
-            messageDiv.className = "message other";
-        }
-
-        const nameDiv = document.createElement("div");
-        nameDiv.className = "name";
-        nameDiv.textContent =
-            message.nickname + " · " + message.time;
-
-        const bubbleDiv = document.createElement("div");
-        bubbleDiv.className = "bubble";
-        bubbleDiv.textContent = message.text;
-
-        messageDiv.appendChild(nameDiv);
-        messageDiv.appendChild(bubbleDiv);
-
-        messagesBox.appendChild(messageDiv);
-    });
-
-    messagesBox.scrollTop = messagesBox.scrollHeight;
-}
-
-
-// 현재 방의 메시지 가져오기
-function getMessages() {
-
-    const key = "chatroom_" + roomNumber;
-
-    const saved = localStorage.getItem(key);
-
-    if (!saved) {
-        return [];
-    }
-
-    try {
-        return JSON.parse(saved);
-    } catch {
-        return [];
-    }
-}
-
-
-// 메시지 저장
-function saveMessages(messages) {
-
-    const key = "chatroom_" + roomNumber;
-
-    localStorage.setItem(
-        key,
-        JSON.stringify(messages)
-    );
-}
-
-
-// 엔터키 전송
-function handleEnter(event) {
-
-    if (event.key === "Enter") {
-        sendMessage();
-    }
-}
-
-
-// 방 나가기
-function leaveRoom() {
-
-    nickname = "";
-    roomNumber = "";
-
-    document.getElementById("chatScreen").style.display = "none";
-    document.getElementById("loginScreen").style.display = "block";
-
-    document.getElementById("nickname").value = "";
-    document.getElementById("roomNumber").value = "";
-    document.getElementById("messageInput").value = "";
-
-    document.getElementById("messages").innerHTML = "";
-}
-
-
-// 5자리 방 번호 입력 시 숫자만 허용
-document.getElementById("roomNumber").addEventListener("input", function() {
-
-    this.value = this.value.replace(/[^0-9]/g, "");
-
-});
-
+function sendMessage(){const i=document.getElementById('messageInput'),t=i.value.trim();if(!t)return;if(!socket||socket.readyState!==WebSocket.OPEN){alert('서버에 연결되어 있지 않습니다.');return}socket.send(JSON.stringify({type:'message',text:t}));i.value='';i.focus()}
+function addMessage(m){const box=document.getElementById('messages');const empty=box.querySelector('.empty');if(empty)empty.remove();const d=document.createElement('div');d.className='message '+(m.senderId===senderId?'mine':'other');const n=document.createElement('div');n.className='name';n.textContent=(m.nickname||'익명')+' · '+(m.time||'');const b=document.createElement('div');b.className='bubble';b.textContent=m.text||'';d.append(n,b);box.appendChild(d)}
+function showSystem(t){const box=document.getElementById('messages'),d=document.createElement('div');d.style='text-align:center;color:#999;font-size:12px;margin:8px';d.textContent=t;box.appendChild(d);scrollBottom()}
+function showEmpty(){document.getElementById('messages').innerHTML='<div class="empty">아직 메시지가 없습니다.</div>'}
+function scrollBottom(){const b=document.getElementById('messages');b.scrollTop=b.scrollHeight}
+function handleEnter(e){if(e.key==='Enter')sendMessage()}
+function leaveRoom(){if(socket){socket.close();socket=null}nickname='';roomNumber='';document.getElementById('chatScreen').style.display='none';document.getElementById('loginScreen').style.display='block';document.getElementById('nickname').value='';document.getElementById('roomNumber').value='';document.getElementById('messageInput').value=''}
+document.getElementById('roomNumber').addEventListener('input',function(){this.value=this.value.replace(/[^0-9]/g,'')});
 </script>
-
 </body>
 </html>
